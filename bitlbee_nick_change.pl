@@ -51,7 +51,7 @@ Irssi::signal_add_last('channel sync' => sub {
 sub event_notice {
 	my ($server, $msg, $nick, $address, $target) = @_;
 	if( $server->{tag} eq $bitlbee_server->{tag} && $msg =~ /User.*changed name to/) {
-		print "$server, $msg, $nick, $address, $target)";
+		#print "$server, $msg, $nick, $address, $target)";
 		my $parsed = $msg;
 		$parsed =~ s/.* - User `(.*)' changed name to `(.*)'/$1,$2/;
 		my($target_nick, $friendly_name) = split(/,/, $parsed, 2);
