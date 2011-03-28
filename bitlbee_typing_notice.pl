@@ -85,13 +85,13 @@ use vars qw($VERSION %IRSSI);
 
 $VERSION = '1.7.1';
 %IRSSI = (
-	authors	 	=> 'Tijmen "timing" Ruizendaal, Matt Sparks',
-	contact		=> 'tijmen.ruizendaal@gmail.com, ms+irssi@quadpoint.org',
-	name		=> 'BitlBee_typing_notice',
-	description	=> '1. Adds an item to the status bar wich shows [typing] when someone is typing a message on the supported IM-networks	2. Sends typing notices to the supported IM networks (the other way arround)',
-	license	 	=> 'GPLv2',
-	url		=> 'http://the-timing.nl/stuff/irssi-bitlbee, http://quadpoint.org',
-	changed	 	=> '2010-08-09',
+	authors     => 'Tijmen "timing" Ruizendaal, Matt Sparks',
+	contact     => 'tijmen.ruizendaal@gmail.com, ms+irssi@quadpoint.org',
+	name        => 'BitlBee_typing_notice',
+	description => '1. Adds an item to the status bar wich shows [typing] when someone is typing a message on the supported IM-networks	2. Sends typing notices to the supported IM networks (the other way arround)',
+	license     => 'GPLv2',
+	url         => 'http://the-timing.nl/stuff/irssi-bitlbee, http://quadpoint.org',
+	changed     => '2010-08-09',
 );
 
 my $bitlbee_server; # server object
