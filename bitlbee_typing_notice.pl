@@ -77,6 +77,7 @@
 # shows [typing: ] in &bitlbee with multiple users.
 #
 use strict;
+use Irssi;
 use Irssi::TextUI;
 use Data::Dumper;
 
