@@ -11,7 +11,7 @@
 # bitlbee_typing_allwin = OFF
 #   -> show typing notifications in all windows
 #
-# 
+#
 # Changelog:
 #
 # 2010-08-09 (version 1.7.1)
@@ -21,7 +21,7 @@
 # * Using new server detection for latest BitlBee support
 #
 # 2010-07-26 (version 1.6.3)
-# * Removed checking if nicks exists in &bitlbee channel, this because BitlBee 
+# * Removed checking if nicks exists in &bitlbee channel, this because BitlBee
 #   can be used without control channel from this date
 #
 # 2007-03-03 (version 1.6.2)
@@ -32,20 +32,23 @@
 #
 # 2006-10-27 (version 1.6)
 # * 'channel sync' re-implemented.
-# * bitlbee_send_typing was a string setting, It's a boolean now, like it should.
+# * bitlbee_send_typing was a string setting, It's a boolean now, like it
+#   should be.
 #
 # 2006-10-24 (version 1.5)
-# * Sending notices to online users only. ( removed this again at 2010-07-26, see above )
+# * Sending notices to online users only. ( removed this again at 2010-07-26,
+#   see above )
 # * Using the new get_channel function;
 #
 # 2005-12-15 (version 1.42):
 # * Fixed small bug with typing notices disappearing under certain circumstances
 #   in channels
-# * Fixed bug that caused outgoing notifications not to work 
+# * Fixed bug that caused outgoing notifications not to work
 # * root cares not about our typing status.
 #
 # 2005-12-04 (version 1.41):
-# * Implemented stale states in statusbar (shows "(stale)" for OSCAR connections) 
+# * Implemented stale states in statusbar (shows "(stale)" for OSCAR
+#   connections)
 # * Introduced bitlbee_typing_allwin (default OFF). Set this to ON to make
 #   typing notifications visible in all windows.
 #
@@ -63,15 +66,18 @@
 # Some fixes for AIM, Thanks to Dracula.
 #
 # 2005-08-16:
-# AIM supported, for sending notices, using CTCP TYPING 0. (Use the AIM patch from Hanji http://get.bitlbee.org/patches/)
-# 
+# AIM supported, for sending notices, using CTCP TYPING 0. (Use the AIM patch
+# from Hanji http://get.bitlbee.org/patches/)
+#
 # 2004-10-31:
-# Sends typing notice to the bitlbee server when typing a message in irssi. bitlbee > 0.92
+# Sends typing notice to the bitlbee server when typing a message in irssi.
+# bitlbee > 0.92
 #
 # 2004-06-11:
 # shows [typing: ] in &bitlbee with multiple users.
 #
 use strict;
+use Irssi;
 use Irssi::TextUI;
 use Data::Dumper;
 
@@ -79,13 +85,13 @@ use vars qw($VERSION %IRSSI);
 
 $VERSION = '1.7.1';
 %IRSSI = (
-	authors	 	=> 'Tijmen "timing" Ruizendaal, Matt "f0rked" Sparks',
-	contact		=> 'tijmen.ruizendaal@gmail.com, root@f0rked.com',
-	name		=> 'BitlBee_typing_notice',
-	description	=> '1. Adds an item to the status bar wich shows [typing] when someone is typing a message on the supported IM-networks	2. Sends typing notices to the supported IM networks (the other way arround)',
-	license	 	=> 'GPLv2',
-	url		=> 'http://the-timing.nl/stuff/irssi-bitlbee, http://f0rked.com',
-	changed	 	=> '2010-08-09',
+	authors     => 'Tijmen "timing" Ruizendaal, Matt Sparks',
+	contact     => 'tijmen.ruizendaal@gmail.com, ms+irssi@quadpoint.org',
+	name        => 'BitlBee_typing_notice',
+	description => '1. Adds an item to the status bar wich shows [typing] when someone is typing a message on the supported IM-networks	2. Sends typing notices to the supported IM networks (the other way arround)',
+	license     => 'GPLv2',
+	url         => 'http://the-timing.nl/stuff/irssi-bitlbee, http://quadpoint.org',
+	changed     => '2010-08-09',
 );
 
 my $bitlbee_server; # server object
@@ -100,7 +106,8 @@ sub init { # if script is loaded after connect
 			my @channels = $server->channels();
 			foreach my $channel(@channels) {
 				if( $channel->{mode} =~ /C/ ){
-					push @control_channels, $channel->{name} unless (grep $_ eq $channel->{name}, @control_channels);
+					push @control_channels, $channel->{name}
+					  unless (grep $_ eq $channel->{name}, @control_channels);
 				}
 			}
 		}
@@ -116,8 +123,10 @@ Irssi::signal_add_last('event 005' => sub {
 # if new control channel is synced after script is loaded
 Irssi::signal_add_last('channel sync' => sub {
 	my( $channel ) = @_;
-	if( $channel->{mode} =~ /C/ && $channel->{server}->{tag} eq $bitlbee_server->{tag} ){
-		push @control_channels, $channel->{name} unless (grep $_ eq $channel->{name}, @control_channels);
+	if( $channel->{mode} =~ /C/
+	    && $channel->{server}->{tag} eq $bitlbee_server->{tag} ){
+		push @control_channels, $channel->{name}
+		  unless (grep $_ eq $channel->{name}, @control_channels);
 	}
 });
 
@@ -147,10 +156,14 @@ sub event_ctcp_msg {
 			unset_typing($from);
 		} elsif( $type == 1 ){
 			$typing{$from}=1;
-			if( $address !~ /\@login\.oscar\.aol\.com/ and $address !~ /\@YAHOO/ and $address !~ /\@login\.icq\.com/ ){
+			if( $address !~ /\@login\.oscar\.aol\.com/
+			    and $address !~ /\@YAHOO/
+			    and $address !~ /\@login\.icq\.com/ ){
 				Irssi::timeout_remove($tag{$from});
 				delete($tag{$from});
-				$tag{$from}=Irssi::timeout_add_once($STOP_TYPING_TIMEOUT*1000,"unset_typing",$from);
+				$tag{$from}=Irssi::timeout_add_once($STOP_TYPING_TIMEOUT * 1000,
+				                                    "unset_typing",
+				                                    $from);
 			}
 			redraw($from);
 		} elsif( $type == 2 ){
@@ -177,12 +190,15 @@ sub redraw {
 	my($from)=@_;
 	my $window = Irssi::active_win();
 	my $name = $window->get_active_name();
-	
-	# only redraw if current window equals to the typing person, is a control channel or if allwin is set
-	if( $from eq $name || (grep $_ eq $name, @control_channels) || Irssi::settings_get_bool("bitlbee_typing_allwin") ){
+
+	# only redraw if current window equals to the typing person, is a control
+	# channel or if allwin is set
+	if( $from eq $name
+	    || (grep $_ eq $name, @control_channels)
+	    || Irssi::settings_get_bool("bitlbee_typing_allwin") ){
 		Irssi::statusbar_items_redraw('typing_notice');
 	}
-}	
+}
 
 sub event_msg {
 	my ($server,$data,$from,$address,$target) = @_;
@@ -203,7 +219,7 @@ sub typing_notice {
 	my ($item, $get_size_only) = @_;
 	my $window = Irssi::active_win();
 	my $channel = $window->get_active_name();
-	
+
 	if (exists($typing{$channel})) {
 		my $append=$typing{$channel}==2 ? " (stale)" : "";
 		$item->default_handler($get_size_only, "{sb typing$append}", 0, 1);
@@ -212,8 +228,10 @@ sub typing_notice {
 		Irssi::timeout_remove($tag{$channel});
 		delete($tag{$channel});
 	}
-	# we check for correct windows again, because the statusbar item is redrawn after window change too.
-	if( (grep $_ eq $channel, @control_channels) || Irssi::settings_get_bool("bitlbee_typing_allwin")) {
+	# we check for correct windows again, because the statusbar item is redrawn
+	# after window change too.
+	if( (grep $_ eq $channel, @control_channels)
+	    || Irssi::settings_get_bool("bitlbee_typing_allwin")) {
 		foreach my $key (keys(%typing)) {
 			$line .= " ".$key;
 			if ($typing{$key}==2) { $line .= " (stale)"; }
@@ -222,7 +240,7 @@ sub typing_notice {
 			$item->default_handler($get_size_only, "{sb typing:$line}", 0, 1);
 			$line = "";
 		}
-	} 
+	}
 }
 
 sub window_change {
@@ -246,15 +264,16 @@ sub window_change {
 sub key_pressed {
 	return if !Irssi::settings_get_bool("bitlbee_send_typing");
 	my $key = shift;
-	if ($key != 9 && $key != 10 && $lastkey != 27 && $key != 27 
-	   && $lastkey != 91 && $key != 126 && $key != 127) 
-	{
+	if ($key != 9 && $key != 10 && $lastkey != 27 && $key != 27
+	    && $lastkey != 91 && $key != 126 && $key != 127) {
 		my $server = Irssi::active_server();
 		my $window = Irssi::active_win();
 		my $nick = $window->get_active_name();
 
-		if ($server->{tag} eq $bitlbee_server->{tag} && $nick ne "(status)" && $nick ne "root") {
-			if( grep $_ eq $nick, @control_channels ){ # send typing if in control channel
+		if ($server->{tag} eq $bitlbee_server->{tag}
+		    && $nick ne "(status)"
+		    && $nick ne "root") {
+			if( grep $_ eq $nick, @control_channels ){ # send typing if in control chan
 				my $input = Irssi::parse_special("\$L");
 				my ($first_word) = split(/ /,$input);
 				if ($input !~ /^$command_char.*/ && $first_word =~ s/$to_char$//){
@@ -283,7 +302,8 @@ sub out_empty {
 
 sub send_typing {
 	my $nick = shift;
-	if (!exists($out_typing{$nick}) || time - $out_typing{$nick} > $KEEP_TYPING_TIMEOUT) {
+	if (!exists($out_typing{$nick})
+	    || time - $out_typing{$nick} > $KEEP_TYPING_TIMEOUT) {
 		$bitlbee_server->command("^CTCP $nick TYPING 1");
 		$out_typing{$nick} = time;
 		### Reset 'stop-typing' timer
@@ -291,26 +311,30 @@ sub send_typing {
 		delete($timer_tag{$nick});
 
 		### create new timer
-		$timer_tag{$nick} = Irssi::timeout_add_once($STOP_TYPING_TIMEOUT*1000, 'out_empty', ["$nick", $bitlbee_server->{tag}]);
+		$timer_tag{$nick} =
+		  Irssi::timeout_add_once($STOP_TYPING_TIMEOUT * 1000,
+		                          'out_empty',
+		                          ["$nick", $bitlbee_server->{tag}]);
 	}
 }
 
-#README: Delete the old bitlbee_send_typing string from ~/.irssi/config. A boolean is better.
+# README: Delete the old bitlbee_send_typing string from ~/.irssi/config.
+# A boolean is better.
 
-sub db_typing { 
+sub db_typing {
 	print "Detected channels: ";
 	print Dumper(@control_channels);
 	print "Detected server tag: ".$bitlbee_server->{tag};
-	print "Tag: ".Dumper(%tag);	
-	print "Timer Tag: ".Dumper(%timer_tag);	
-	print "Typing: ".Dumper(%typing);	
-	print "Out Typing: ".Dumper(%out_typing);	
+	print "Tag: ".Dumper(%tag);
+	print "Timer Tag: ".Dumper(%timer_tag);
+	print "Typing: ".Dumper(%typing);
+	print "Out Typing: ".Dumper(%out_typing);
 }
 
-Irssi::command_bind('db_typing','db_typing');
+Irssi::command_bind('db_typing', 'db_typing');
 
-Irssi::settings_add_bool("bitlbee","bitlbee_send_typing",1);
-Irssi::settings_add_bool("bitlbee","bitlbee_typing_allwin",0);
+Irssi::settings_add_bool("bitlbee","bitlbee_send_typing", 1);
+Irssi::settings_add_bool("bitlbee","bitlbee_typing_allwin", 0);
 
 Irssi::signal_add("ctcp msg", "event_ctcp_msg");
 Irssi::signal_add("message private", "event_msg");
